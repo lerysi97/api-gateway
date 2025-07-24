@@ -1,35 +1,15 @@
 spring:
   application:
     name: api-gateway
+  config:
+    import: "configserver:http://host.docker.internal:8888"
   cloud:
     config:
-      uri: http://config-server:8888
-      fail-fast: true
-    gateway:
-      routes:
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/users/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: user-service
-                fallbackUri: forward:/fallback/user-service
-        - id: notification-service
-          uri: lb://notification-service
-          predicates:
-            - Path=/api/notifications/**
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-
-management:
-  endpoint:
-    health:
-      show-details: always
-  endpoints:
-    web:
-      exposure:
-        include: health,info,gateway
+        enabled: true
+        uri: http://host.docker.internal:8888
+        fail-fast: true
+    loadbalancer:
+      cache:
+        enabled: true
+        caffeine:
+          spec: maximumSize=500, expireAfterWrite=5m
